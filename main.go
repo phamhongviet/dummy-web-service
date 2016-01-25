@@ -12,21 +12,21 @@ var port *string
 var name *string
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, *name)
+	fmt.Fprintln(w, *name)
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "OK")
+	fmt.Fprintln(w, "OK")
 }
 
 func environHandler(w http.ResponseWriter, r *http.Request) {
 	var env string
 	for _, e := range os.Environ() {
 		if strings.HasPrefix(e, "DUMMY_") {
-			env += e
+			env += e + "\n"
 		}
 	}
-	fmt.Fprintf(w, env)
+	fmt.Fprintln(w, env)
 }
 
 func init() {
