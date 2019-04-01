@@ -1,0 +1,35 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-{{ .Release.Name }}-nginx-deployment
+  labels:
+    app: {{ .Chart.Name }}-{{ .Release.Name }}-nginx
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-{{ .Release.Name }}-nginx
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-{{ .Release.Name }}-nginx
+      annotations:
+        checksum/config: {{ include "nginx.conf" . | sha256sum }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}-{{ .Release.Name }}-nginx
+        image: nginx:stable
+        command: ["nginx", "-c", "/etc/nginx/{{ .Chart.Name }}-{{ .Release.Name }}/nginx.conf"]
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: {{ .Chart.Name }}-{{ .Release.Name }}-nginx-config-vol
+          mountPath: /etc/nginx/{{ .Chart.Name }}-{{ .Release.Name }}
+      volumes:
+      - name: {{ .Chart.Name }}-{{ .Release.Name }}-nginx-config-vol
+        configMap:
+          name: {{ .Chart.Name }}-{{ .Release.Name }}-nginx-config
+          items:
+          - key: nginx.conf
+            path: nginx.conf

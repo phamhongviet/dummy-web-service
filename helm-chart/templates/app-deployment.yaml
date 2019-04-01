@@ -1,0 +1,38 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-{{ .Release.Name }}-app-deployment
+  labels:
+    app: {{ .Chart.Name }}-{{ .Release.Name }}-app
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-{{ .Release.Name }}-app
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-{{ .Release.Name }}-app
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/app-configmap.yaml") . | sha256sum }}
+    spec:
+      containers:
+      - name: dummy-web-service
+        image: quay.io/vietpham/dummy-web-service
+        ports:
+        - containerPort: 8888
+        envFrom:
+        - configMapRef:
+            name: {{ .Chart.Name }}-{{ .Release.Name }}-app-config
+        livenessProbe:
+          tcpSocket:
+            port: 8888
+          initialDelaySeconds: 1
+          periodSeconds: 2
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8888
+          initialDelaySeconds: 1
+          periodSeconds: 2

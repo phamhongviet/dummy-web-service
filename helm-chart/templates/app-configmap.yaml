@@ -1,0 +1,9 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Chart.Name }}-{{ .Release.Name }}-app-config
+data:
+  DUMMY_FOO: {{ .Values.dummy.foo }}
+  DUMMY_BAR: {{ .Values.dummy.bar }}
+  DUMMY_ZOOP: {{ .Values.dummy.zoop }}
